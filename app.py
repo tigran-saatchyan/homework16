@@ -5,13 +5,45 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
 from data.raw_data import *
-from utils import commit_updated_data, convert_date_format, delete_row
 
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///store.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
+
+
+def commit_updated_data(data, table):
+    """
+    Update data and commit
+    :param data:    - data for update
+    :param table:   - table to be updated
+    """
+    with app.app_context():
+        for k, v in data.items():
+            setattr(table, k, v)
+            db.session.add(table)
+            db.session.commit()
+
+
+def delete_row(row_data):
+    with app.app_context():
+        db.session.delete(row_data)
+        db.session.commit()
+
+
+def convert_date_format(data):
+    result = []
+
+    for dict_element in data:
+        temp_dict = {}
+        for k, v in dict_element.items():
+            if k not in ('start_date', 'end_date'):
+                temp_dict[k] = v
+            else:
+                temp_dict[k] = datetime.strptime(v, '%m/%d/%Y').date()
+        result.append(temp_dict)
+    return result
 
 
 class User(db.Model):
