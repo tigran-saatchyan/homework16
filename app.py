@@ -19,17 +19,16 @@ def commit_updated_data(data, table):
     :param data:    - data for update
     :param table:   - table to be updated
     """
-    with app.app_context():
-        for k, v in data.items():
-            setattr(table, k, v)
-            db.session.add(table)
-            db.session.commit()
+    for k, v in data.items():
+        setattr(table, k, v)
+        db.session.add(table)
+        db.session.commit()
 
 
 def delete_row(row_data):
-    with app.app_context():
-        db.session.delete(row_data)
-        db.session.commit()
+
+    db.session.delete(row_data)
+    db.session.commit()
 
 
 def convert_date_format(data):
